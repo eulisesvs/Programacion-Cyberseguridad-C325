@@ -1,0 +1,125 @@
+Proceso Gestor_Contrasenas_Seguras
+    // Declaración de variables
+    Definir opcion, n, i, cantidad Como Entero
+    Dimension usuarios[50]       // Arreglo para guardar nombres de usuarios
+    Dimension contrasenas[50]    // Arreglo para guardar contraseñas
+    Dimension fuerza[50]         // Arreglo para guardar nivel de seguridad
+    n <- 0                       // Contador de usuarios registrados
+	
+    Repetir
+        // Mostrar menú principal
+        Escribir "====== GESTOR DE CONTRASEÑAS SEGURAS ======"
+        Escribir "1. Registrar usuario(s)"
+        Escribir "2. Mostrar reporte de contraseñas"
+        Escribir "3. Salir"
+        Escribir "Seleccione una opción: "
+        Leer opcion
+		
+        Segun opcion Hacer
+            1:
+                // Registrar nuevos usuarios
+                Escribir "¿Cuántos usuarios desea registrar? "
+                Leer cantidad
+                Para i <- n+1 Hasta n+cantidad Con Paso 1 Hacer
+                    // Pedir nombre de usuario
+                    Escribir "Ingrese el nombre del usuario ", i, ": "
+                    Leer usuarios[i]
+					
+                    // Mostrar nota informativa sobre contraseña segura
+                    Escribir ""
+                    Escribir "Nota: La contraseña debe tener al menos 8 caracteres,"
+                    Escribir "incluir mayúsculas, minúsculas, números y símbolos."
+                    Escribir ""
+					
+                    // Pedir contraseña
+                    Escribir "Ingrese la contraseña de ", usuarios[i], ": "
+                    Leer contrasenas[i]
+					
+                    // Llamar al subproceso que determina la fuerza de la contraseña
+                    VerificarContrasena(contrasenas[i], fuerza[i])
+					
+                    // Mostrar el nivel de seguridad
+                    Escribir "Nivel de seguridad: ", fuerza[i]
+                    Escribir ""
+                FinPara
+                n <- n + cantidad      // Actualizar número total de usuarios
+            2:
+                // Mostrar reporte de usuarios y contraseñas
+                Si n = 0 Entonces
+                    Escribir "No hay usuarios registrados aún."
+                SiNo
+                    Escribir ""
+                    Escribir "======== REPORTE DE CONTRASEÑAS ========"
+                    Para i <- 1 Hasta n Con Paso 1 Hacer
+                        Escribir "Usuario: ", usuarios[i]
+                        Escribir "Contraseña: ********"   // Ocultar la contraseña real
+                        Escribir "Nivel de seguridad: ", fuerza[i]
+                        // Alertar si la contraseña es débil
+                        Si fuerza[i] = "Débil" Entonces
+                            Escribir "!! Aviso: Su contraseña es vulnerable, se recomienda fortalecerla."
+                        FinSi
+                        Escribir "------------------------------------"
+                    FinPara
+                FinSi
+            3:
+                // Salir del programa
+                Escribir "Saliendo del programa..."
+            De Otro Modo:
+                // Manejar opción inválida
+                Escribir "Opción inválida, intente de nuevo."
+        FinSegun
+    Hasta Que opcion = 3
+FinProceso
+
+
+SubProceso VerificarContrasena(pass Por Valor, fuerza Por Referencia)
+    // Subproceso para verificar la fuerza de una contraseña
+    Definir largo, i, puntos, mayus, minus, num, simb Como Entero
+    Definir c, nivel Como Cadena
+    puntos <- 0
+    mayus <- 0
+    minus <- 0
+    num <- 0
+    simb <- 0
+	
+    // Determinar la longitud de la contraseña
+    largo <- Longitud(pass)
+	
+    // Recorrer cada carácter de la contraseña
+    Para i <- 1 Hasta largo Con Paso 1 Hacer
+        c <- SubCadena(pass, i, i)
+        Si c >= "A" Y c <= "Z" Entonces
+            mayus <- 1       // Contiene mayúscula
+        FinSi
+        Si c >= "a" Y c <= "z" Entonces
+            minus <- 1       // Contiene minúscula
+        FinSi
+        Si c >= "0" Y c <= "9" Entonces
+            num <- 1         // Contiene número
+        FinSi
+        // Detectar símbolo si no es letra ni número
+        Si No( (c >= "A" Y c <= "Z") O (c >= "a" Y c <= "z") O (c >= "0" Y c <= "9") ) Entonces
+            simb <- 1
+        FinSi
+    FinPara
+	
+    // Asignar puntos por cumplir criterios
+    Si largo >= 8 Entonces
+        puntos <- puntos + 1
+    FinSi
+    puntos <- puntos + mayus + minus + num + simb
+	
+    // Determinar nivel de seguridad
+    Si puntos <= 2 Entonces
+        nivel <- "Débil"
+    Sino
+        Si puntos = 3 O puntos = 4 Entonces
+            nivel <- "Media"
+        Sino
+            nivel <- "Fuerte"
+        FinSi
+    FinSi
+	
+    // Asignar nivel al argumento por referencia
+    fuerza <- nivel
+FinSubProceso
