@@ -1,0 +1,108 @@
+import re
+import pwinput  # Biblioteca para ocultar la contraseña con puntos en tiempo real
+
+# ==============================
+# Función: Verificar la fuerza de la contraseña
+# ==============================
+def verificar_contrasena(passw):
+    puntos = 0
+
+    if len(passw) >= 8:
+        puntos += 1
+    if re.search(r"[A-Z]", passw):
+        puntos += 1
+    if re.search(r"[a-z]", passw):
+        puntos += 1
+    if re.search(r"[0-9]", passw):
+        puntos += 1
+    if re.search(r"[^A-Za-z0-9]", passw):
+        puntos += 1
+
+    if puntos <= 2:
+        nivel = "Débil"
+    elif puntos in [3, 4]:
+        nivel = "Media"
+    else:
+        nivel = "Fuerte"
+    
+    return nivel
+
+# ==============================
+# Función: Registrar usuarios
+# ==============================
+def registrar_usuario(usuarios, contrasenas, fuerzas):
+    try:
+        cantidad = int(input("¿Cuántos usuarios desea registrar?: "))
+    except ValueError:
+        print("Debe ingresar un número válido.\n")
+        return
+
+    for i in range(cantidad):
+        print(f"\n--- Registro del usuario {i + 1} ---")
+        nombre = input("Ingrese el nombre del usuario: ")
+
+        print("\nNota: La contraseña debe tener al menos 8 caracteres,")
+        print("incluir mayúsculas, minúsculas, números y símbolos.\n")
+
+        # Ingreso de contraseña con puntos “•” visibles
+        passw = pwinput.pwinput(prompt=f"Ingrese la contraseña de {nombre}: ", mask="•")
+
+        nivel = verificar_contrasena(passw)
+        print("Nivel de seguridad:", nivel, "\n")
+
+        usuarios.append(nombre)
+        contrasenas.append(passw)
+        fuerzas.append(nivel)
+
+# ==============================
+# Función: Mostrar reporte
+# ==============================
+def mostrar_reporte(usuarios, contrasenas, fuerzas):
+    if len(usuarios) == 0:
+        print("\nNo hay usuarios registrados aún.\n")
+        return
+
+    print("\n====== REPORTE DE CONTRASEÑAS ======")
+    for i in range(len(usuarios)):
+        print("Usuario:", usuarios[i])
+        print("Contraseña: ********")
+        print("Nivel de seguridad:", fuerzas[i])
+        if fuerzas[i] == "Débil":
+            print("!! Aviso: Su contraseña es vulnerable, se recomienda fortalecerla.")
+        print("------------------------------------")
+    print()
+
+# ==============================
+# Menú principal
+# ==============================
+def menu():
+    usuarios = []
+    contrasenas = []
+    fuerzas = []
+    opcion = 0
+
+    while opcion != 3:
+        print("====== GESTOR DE CONTRASEÑAS SEGURAS ======")
+        print("1. Registrar usuario(s)")
+        print("2. Mostrar reporte de contraseñas")
+        print("3. Salir")
+        try:
+            opcion = int(input("Seleccione una opción: "))
+        except ValueError:
+            print("Debe ingresar un número válido.\n")
+            continue
+
+        if opcion == 1:
+            registrar_usuario(usuarios, contrasenas, fuerzas)
+        elif opcion == 2:
+            mostrar_reporte(usuarios, contrasenas, fuerzas)
+        elif opcion == 3:
+            print("Saliendo del programa...")
+        else:
+            print("Opción inválida, intente de nuevo.\n")
+
+# ==============================
+# Ejecución del programa
+# ==============================
+if __name__ == "__main__":
+    menu()
